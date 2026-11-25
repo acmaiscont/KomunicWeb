@@ -1,0 +1,9 @@
+Para transformar em executável, na pasta da versão rode:
+
+dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeAllContentForSelfExtract=true
+
+O arquivo irá para ...\bin\Release\net8.0-windows\<Pasta do app>\Publish
+
+
+Para transformar em instalador, deve-se utilizar o InnoSetup
+

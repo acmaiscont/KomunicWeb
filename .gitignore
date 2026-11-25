@@ -1,0 +1,20 @@
+# Artefatos de build e distribuição
+**/bin/
+**/obj/
+**/publish/
+**/Output/
+*.pdb
+
+# Dados locais e logs
+**/app_log.txt
+**/ping_log.txt
+**/*.db
+
+# Arquivos históricos, cópias antigas e materiais que não fazem parte do app atual
+Versão/Backups/
+Versão/KomunicApi/
+Versão/MessengerApp/
+Versão/MessengerApi/
+Versão/Arquivos/Onvio*
+Versão/Arquivos/*Messenger*
+Versão/Arquivos/Planejamento*

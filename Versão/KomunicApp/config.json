@@ -1,0 +1,10 @@
+{
+  "AppName": "Komunic",
+  "LoginUrl": "https://app.komunic.net/login",
+  "StartUrl": "https://app.komunic.net/newchat",
+  "AuthenticatedUrlPrefixes": [
+    "https://app.komunic.net/newchat"
+  ],
+  "GitHubRepo": "acmaiscont/KomunicWeb",
+  "CurrentVersion": "v1.0.0"
+}

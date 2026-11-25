@@ -1,0 +1,15 @@
+# .NET Core
+bin/
+obj/
+
+# InnoSetup Output
+Output/
+
+# Publish
+publish/
+
+# Local App Data / Logs
+WebView2/
+pending.json
+app_log.txt
+*.user

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Análise de Tendências — Set/2024–Fev/2025</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #080c18;
+    color: #e8eaf0;
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    padding: 32px 20px 56px;
+    min-width: 320px;
+  }
+
+  .wrap { max-width: 1060px; margin: 0 auto; }
+
+  /* ── HEADER ── */
+  .header { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+  .header-bar { width: 5px; height: 46px; border-radius: 4px; background: linear-gradient(180deg,#00e5a0,#3b8df5); flex-shrink: 0; }
+  .header-eyebrow { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: #3a4560; margin-bottom: 3px; }
+  .header-title { font-size: 24px; font-weight: 900; color: #fff; letter-spacing: -0.8px; }
+
+  /* ── KPIs ── */
+  .kpi-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; margin-bottom: 24px; }
+  .kpi { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 11px; padding: 13px 14px; border-top-width: 2px; }
+  .kpi-label { font-size: 9px; color: #3a4560; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .kpi-value { font-size: 22px; font-weight: 900; line-height: 1; }
+  .kpi-sub { font-size: 10px; color: #5a6a80; margin-top: 4px; }
+
+  /* ── CARDS ── */
+  .card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 22px; margin-bottom: 18px; }
+  .card-title { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 18px; }
+
+  .section-label {
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    color: #3a4560; margin-bottom: 16px; padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* ── CHARTS ── */
+  .chart-wrap { position: relative; width: 100%; margin-bottom: 8px; }
+
+  /* ── NOTICE BOXES ── */
+  .notice { border-radius: 8px; padding: 10px 14px; font-size: 11px; line-height: 1.7; margin-bottom: 16px; }
+  .notice-yellow { background: rgba(255,183,71,0.07); border: 1px solid rgba(255,183,71,0.2); color: #b8893a; }
+  .notice-green  { background: rgba(0,229,160,0.06);  border: 1px solid rgba(0,229,160,0.18); color: #3aad7e; }
+  .notice-purple { background: rgba(192,132,252,0.07); border: 1px solid rgba(192,132,252,0.2); color: #c8b0f0; font-size: 12px; line-height: 1.8; }
+
+  /* ── TEMPO NOTES ── */
+  .tempo-notes { display: flex; flex-direction: column; gap: 5px; margin-top: 14px; }
+  .tempo-row { display: flex; gap: 10px; font-size: 11px; color: #6b7a90; }
+  .tempo-mes { font-weight: 700; color: #9ab; min-width: 28px; }
+
+  /* ── DENSITY ── */
+  .density-intro { margin-bottom: 18px; }
+  .density-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .density-month { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 14px 16px; }
+  .density-month-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .density-month-name { font-size: 16px; font-weight: 900; color: #fff; }
+  .density-badge { border-radius: 6px; padding: 3px 10px; font-size: 10px; font-weight: 700; background: rgba(255,160,60,0.12); color: #ffb347; border: 1px solid rgba(255,160,60,0.28); }
+  .density-semanas { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 10px; }
+  .density-sem { background: rgba(255,255,255,0.02); border-radius: 7px; padding: 8px 10px; }
+  .density-sem-header { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .density-sem-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #3a4560; }
+  .density-sem-tag { border-radius: 3px; padding: 1px 6px; font-size: 9px; font-weight: 800; }
+  .density-sem-desc { font-size: 10px; color: #b0bcc8; line-height: 1.5; }
+  .density-note { font-size: 10px; color: #4a5a70; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; line-height: 1.6; }
+
+  /* ── INSIGHTS ── */
+  .insights-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+  .insight { background: rgba(255,255,255,0.025); border-radius: 10px; padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+  .insight-icon { font-size: 18px; flex-shrink: 0; }
+  .insight-title { font-weight: 800; font-size: 12px; margin-bottom: 4px; }
+  .insight-desc { font-size: 11px; color: #6b7a90; line-height: 1.65; }
+
+  /* ── DESCONSIDERADOS TABLE ── */
+  .desc-note { font-size: 11px; color: #3a4560; text-align: center; margin-top: 8px; }
+
+  /* ── FOOTER ── */
+  .footer { text-align: center; font-size: 10px; color: #1e2535; margin-top: 8px; }
+
+  @media (max-width: 720px) {
+    .kpi-grid { grid-template-columns: repeat(2,1fr); }
+    .density-grid { grid-template-columns: 1fr; }
+    .insights-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-bar"></div>
+    <div>
+      <div class="header-eyebrow">Análise de Tendências · Set/2024 – Fev/2025</div>
+      <div class="header-title">Dashboard de Atendimentos</div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi" style="border-top-color:#00e5a0">
+      <div class="kpi-label">Total Iniciados</div>
+      <div class="kpi-value" style="color:#00e5a0">3.102</div>
+      <div class="kpi-sub">6 meses</div>
+    </div>
+    <div class="kpi" style="border-top-color:#3b8df5">
+      <div class="kpi-label">Total Concluídos</div>
+      <div class="kpi-value" style="color:#3b8df5">3.095</div>
+      <div class="kpi-sub">≥99,8% conclusão</div>
+    </div>
+    <div class="kpi" style="border-top-color:#ffb347">
+      <div class="kpi-label">Pico Mensal</div>
+      <div class="kpi-value" style="color:#ffb347">734</div>
+      <div class="kpi-sub">Janeiro</div>
+    </div>
+    <div class="kpi" style="border-top-color:#c084fc">
+      <div class="kpi-label">Cresc. Set→Jan</div>
+      <div class="kpi-value" style="color:#c084fc">+198%</div>
+      <div class="kpi-sub">acumulado</div>
+    </div>
+    <div class="kpi" style="border-top-color:#ff6b6b">
+      <div class="kpi-label">Queda Jan→Fev</div>
+      <div class="kpi-value" style="color:#ff6b6b">−19,4%</div>
+      <div class="kpi-sub">sazonalidade</div>
+    </div>
+  </div>
+
+  <!-- CHART 1: VOLUME -->
+  <div class="card">
+    <div class="section-label">📊 Volume Mensal</div>
+    <div class="card-title">Evolução Mensal — Iniciados vs. Concluídos</div>
+    <div class="chart-wrap" style="height:260px"><canvas id="chartVolume"></canvas></div>
+  </div>
+
+  <!-- CHART 2: CRESCIMENTO -->
+  <div class="card">
+    <div class="section-label">📈 Crescimento</div>
+    <div class="card-title">Taxa de Crescimento Mês a Mês (%)</div>
+    <div class="chart-wrap" style="height:230px"><canvas id="chartCrescimento"></canvas></div>
+    <p style="font-size:11px;color:#3a4560;margin-top:8px;text-align:center">
+      Fevereiro tem ~3 dias úteis a menos que janeiro — parte da queda é estrutural do calendário.
+    </p>
+  </div>
+
+  <!-- CHART 3: TEMPO -->
+  <div class="card">
+    <div class="section-label">⏱ Tempo de Conversa</div>
+    <div class="card-title">Tempo Médio de Conversa — Típico vs. Pico (horas)</div>
+    <div class="notice notice-yellow">
+      ℹ️ <strong>Outliers de Set e Out descartados</strong> — picos de 8 dias e 2,5 dias eram artefatos de implantação, sem representar comportamento operacional real.
+    </div>
+    <div class="chart-wrap" style="height:220px"><canvas id="chartTempo"></canvas></div>
+    <div class="tempo-notes">
+      <div class="tempo-row"><span class="tempo-mes">Set</span><span>Outlier descartado (implantação) — tempo típico estimado &lt;30 min</span></div>
+      <div class="tempo-row"><span class="tempo-mes">Out</span><span>Outlier descartado — tempo típico estimado ~40 min</span></div>
+      <div class="tempo-row"><span class="tempo-mes">Nov</span><span>Picos ~3h30 concentrados em 09–11 e 23/Nov</span></div>
+      <div class="tempo-row"><span class="tempo-mes">Dez</span><span>Pico máx ~5h30 em 23–25/Dez — possível acúmulo pré-recesso</span></div>
+      <div class="tempo-row"><span class="tempo-mes">Jan</span><span>Pico de ~8h em 01/Jan (outlier pontual de virada de ano)</span></div>
+      <div class="tempo-row"><span class="tempo-mes">Fev</span><span>Outlier isolado ~17h em 21/Fev merece investigação pontual</span></div>
+    </div>
+  </div>
+
+  <!-- CHART 4: DESCONSIDERADOS -->
+  <div class="card">
+    <div class="section-label">⚠️ Desconsiderados</div>
+    <div class="card-title">Atendimentos Desconsiderados por Mês</div>
+    <div class="notice notice-green">
+      ℹ️ <strong>Setembro zerado na análise</strong> — os 34 desconsiderados do período de implantação foram excluídos por não representar comportamento operacional real.
+    </div>
+    <div class="chart-wrap" style="height:210px"><canvas id="chartDesc"></canvas></div>
+    <p class="desc-note">Janeiro tem o maior volume bruto (23), mas representa apenas 3,1% dos iniciados — dentro da faixa normal.</p>
+  </div>
+
+  <!-- DENSIDADE INTRA-MÊS -->
+  <div class="card">
+    <div class="section-label">🗓 Padrão de Densidade Intra-Mês</div>
+    <div class="card-title">Análise de Densidade por Período do Mês</div>
+
+    <div class="notice notice-purple density-intro">
+      <strong style="color:#c084fc">📌 Padrão recorrente identificado em 4 dos 5 meses operacionais:</strong><br>
+      <span style="color:#b0b8cc">
+        (1) <strong style="color:#fff">Dias 1–5 (início do mês)</strong> — alta demanda consistente em Dez, Jan e Fev. Em Janeiro apresentou o maior pico do período (~55/dia).<br>
+        (2) <strong style="color:#fff">Dias 9–13 (2ª semana)</strong> — pico recorrente em Nov, Dez e Fev (~45–55/dia).<br>
+        (3) <strong style="color:#fff">Dias 19–25 (3ª/4ª semana)</strong> — pico secundário em Nov e Dez, sugerindo <strong style="color:#00e5a0">ciclo quinzenal de demanda</strong>, possivelmente relacionado a fechamentos ou vencimentos.
+      </span>
+    </div>
+
+    <div class="density-grid" id="densityGrid"></div>
+  </div>
+
+  <!-- INSIGHTS -->
+  <div class="insights-grid" id="insightsGrid"></div>
+
+  <div class="footer">
+    Outliers de Set/Out descartados · Desconsiderados de Set zerados · Set/2024–Fev/2025
+  </div>
+</div>
+
+<script>
+const ACCENT="#00e5a0", BLUE="#3b8df5", ORANGE="#ffb347", RED="#ff6b6b", PURPLE="#c084fc";
+
+const chartDefaults = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { labels: { color:"#6b7a90", font:{ size:11, family:"DM Sans" }, boxWidth:12, padding:16 } }
+  },
+  scales: {
+    x: { grid:{ color:"rgba(255,255,255,0.04)" }, ticks:{ color:"#3a4560", font:{size:11} }, border:{display:false} },
+    y: { grid:{ color:"rgba(255,255,255,0.04)" }, ticks:{ color:"#3a4560", font:{size:11} }, border:{display:false} }
+  }
+};
+
+// VOLUME
+new Chart(document.getElementById("chartVolume"), {
+  type:"bar",
+  data:{
+    labels:["Set","Out","Nov","Dez","Jan","Fev"],
+    datasets:[
+      { label:"Iniciados",  data:[246,385,528,618,734,591], backgroundColor:BLUE+"cc",  borderRadius:4, borderSkipped:false },
+      { label:"Concluídos", data:[243,385,530,607,744,586], backgroundColor:ACCENT+"cc", borderRadius:4, borderSkipped:false },
+    ]
+  },
+  options:{
+    ...chartDefaults,
+    plugins:{
+      ...chartDefaults.plugins,
+      tooltip:{ callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}` } }
+    }
+  }
+});
+
+// CRESCIMENTO
+new Chart(document.getElementById("chartCrescimento"), {
+  type:"bar",
+  data:{
+    labels:["Set→Out","Out→Nov","Nov→Dez","Dez→Jan","Jan→Fev"],
+    datasets:[{
+      label:"Crescimento (%)",
+      data:[56.5,37.1,17.0,18.8,-19.4],
+      backgroundColor: [ACCENT+"cc",ACCENT+"cc",ACCENT+"cc",ACCENT+"cc",RED+"cc"],
+      borderRadius:5, borderSkipped:false
+    }]
+  },
+  options:{
+    ...chartDefaults,
+    plugins:{
+      ...chartDefaults.plugins,
+      datalabels: false,
+      tooltip:{ callbacks:{ label: ctx => ` ${ctx.parsed.y > 0 ? "+" : ""}${ctx.parsed.y}%` } }
+    },
+    scales:{
+      ...chartDefaults.scales,
+      y:{ ...chartDefaults.scales.y, ticks:{ ...chartDefaults.scales.y.ticks, callback: v => v+"%" } }
+    }
+  }
+});
+
+// TEMPO
+new Chart(document.getElementById("chartTempo"), {
+  type:"bar",
+  data:{
+    labels:["Set","Out","Nov","Dez","Jan","Fev"],
+    datasets:[
+      { label:"Tempo Típico (h)", data:[0.3,0.7,1.2,1.8,2.1,1.5], backgroundColor:BLUE+"cc",   borderRadius:4, borderSkipped:false },
+      { label:"Pico do Mês (h)",  data:[null,null,3.8,5.5,4.2,3.2], backgroundColor:PURPLE+"bb", borderRadius:4, borderSkipped:false },
+    ]
+  },
+  options:{
+    ...chartDefaults,
+    plugins:{
+      ...chartDefaults.plugins,
+      tooltip:{ callbacks:{ label: ctx => ctx.parsed.y != null ? ` ${ctx.dataset.label}: ${ctx.parsed.y}h` : "" } }
+    },
+    scales:{
+      ...chartDefaults.scales,
+      y:{ ...chartDefaults.scales.y, ticks:{ ...chartDefaults.scales.y.ticks, callback: v => v+"h" } }
+    }
+  }
+});
+
+// DESCONSIDERADOS
+new Chart(document.getElementById("chartDesc"), {
+  type:"bar",
+  data:{
+    labels:["Set","Out","Nov","Dez","Jan","Fev"],
+    datasets:[{
+      label:"Desconsiderados",
+      data:[0,10,6,11,23,12],
+      backgroundColor:RED+"cc", borderRadius:4, borderSkipped:false
+    }]
+  },
+  options:{ ...chartDefaults }
+});
+
+// DENSITY
+const statusColor = { pico:ORANGE, alta:ACCENT, media:BLUE, baixa:"#4a5568" };
+const statusLabel = { pico:"PICO", alta:"Alta", media:"Moderada", baixa:"Baixa" };
+
+const densidadeMes = [
+  { mes:"Set", cor:"#64b5f6", destaque:null,
+    nota:"Rampa de adoção — volume cresce ao longo do mês conforme implantação avança.",
+    semanas:[
+      {label:"Dias 1–7",  status:"baixa", desc:"Início de implantação — volume muito baixo (1–3/dia)"},
+      {label:"Dias 8–14", status:"media", desc:"Começa a crescer a partir do dia 9 (~10–20/dia)"},
+      {label:"Dias 15–21",status:"alta",  desc:"Estável em ~10–20 atendimentos/dia"},
+      {label:"Dias 22–31",status:"alta",  desc:"Estável em ~10–17 atendimentos/dia"},
+    ]},
+  { mes:"Out", cor:ORANGE, destaque:"Pico pontual: 23/Out (~31/dia)",
+    nota:"Queda na 2ª semana seguida de forte recuperação e pico isolado em 23/Out.",
+    semanas:[
+      {label:"Dias 1–7",  status:"alta",  desc:"Alta consistente (~15–20/dia)"},
+      {label:"Dias 8–14", status:"baixa", desc:"Queda acentuada (~5–10/dia)"},
+      {label:"Dias 15–21",status:"alta",  desc:"Recuperação + pico em 23/Out (~31)"},
+      {label:"Dias 22–31",status:"alta",  desc:"Estável em ~15–23/dia"},
+    ]},
+  { mes:"Nov", cor:PURPLE, destaque:"🔥 Pico 19–21/Nov (~50/dia)",
+    nota:"3ª semana concentra o maior volume do mês com pico de ~50 atendimentos/dia.",
+    semanas:[
+      {label:"Dias 1–7",  status:"alta", desc:"Alta (~20–30/dia)"},
+      {label:"Dias 8–14", status:"alta", desc:"Alta sustentada (~25–35/dia)"},
+      {label:"Dias 15–21",status:"pico", desc:"🔥 PICO — 19–21/Nov (~50/dia)"},
+      {label:"Dias 22–30",status:"alta", desc:"Alta (~25–35/dia)"},
+    ]},
+  { mes:"Dez", cor:ACCENT, destaque:"🔥 Três picos: dias 3–5, 9 e 23–25",
+    nota:"Três janelas de alta densidade — possível relação com fechamentos quinzenais/mensais.",
+    semanas:[
+      {label:"Dias 1–7",  status:"pico",  desc:"🔥 PICO — 3–5/Dez (~35–45/dia)"},
+      {label:"Dias 8–14", status:"pico",  desc:"🔥 PICO — 9/Dez (~45/dia)"},
+      {label:"Dias 15–21",status:"media", desc:"Moderada (~25–45/dia com variação)"},
+      {label:"Dias 22–31",status:"pico",  desc:"🔥 PICO — 23–25/Dez (~45–48/dia)"},
+    ]},
+  { mes:"Jan", cor:RED, destaque:"🔥 Pico máximo: 3–5/Jan (~55/dia)",
+    nota:"Início de mês fortíssimo (possível represa de demanda do fim de ano), depois estabiliza.",
+    semanas:[
+      {label:"Dias 1–7",  status:"pico", desc:"🔥 PICO MÁXIMO — 3–5/Jan (~55/dia)"},
+      {label:"Dias 8–14", status:"alta", desc:"Alta (~30–42/dia)"},
+      {label:"Dias 15–21",status:"alta", desc:"Alta (~35–45/dia)"},
+      {label:"Dias 22–31",status:"alta", desc:"Alta (~30–40/dia)"},
+    ]},
+  { mes:"Fev", cor:BLUE, destaque:"🔥 Pico 11–13/Fev (~55/dia)",
+    nota:"2ª semana concentra o maior volume. Queda irregular em 21/Fev (outlier isolado).",
+    semanas:[
+      {label:"Dias 1–7",  status:"alta",  desc:"Alta (~35–45/dia)"},
+      {label:"Dias 8–14", status:"pico",  desc:"🔥 PICO — 11–13/Fev (~55/dia)"},
+      {label:"Dias 15–21",status:"media", desc:"Irregular — queda em 21/Fev (outlier)"},
+      {label:"Dias 22–28",status:"alta",  desc:"Alta (~25–40/dia)"},
+    ]},
+];
+
+const dgEl = document.getElementById("densityGrid");
+densidadeMes.forEach(d => {
+  dgEl.innerHTML += `
+    <div class="density-month" style="border-top:2px solid ${d.cor}">
+      <div class="density-month-header">
+        <span class="density-month-name">${d.mes}</span>
+        ${d.destaque ? `<span class="density-badge">${d.destaque}</span>` : ""}
+      </div>
+      <div class="density-semanas">
+        ${d.semanas.map(s => `
+          <div class="density-sem" style="border-left:2px solid ${statusColor[s.status]}">
+            <div class="density-sem-header">
+              <span class="density-sem-label">${s.label}</span>
+              <span class="density-sem-tag" style="background:${statusColor[s.status]}22;color:${statusColor[s.status]}">${statusLabel[s.status]}</span>
+            </div>
+            <div class="density-sem-desc">${s.desc}</div>
+          </div>`).join("")}
+      </div>
+      <div class="density-note">💬 ${d.nota}</div>
+    </div>`;
+});
+
+// INSIGHTS
+const insights = [
+  {icon:"📈",cor:ACCENT,   titulo:"Crescimento Acumulado",        desc:"De Set a Jan: +198% em atendimentos iniciados. O ritmo mais forte foi no bimestre Set–Nov (+56% e +37%)."},
+  {icon:"✅",cor:BLUE,     titulo:"Taxa de Conclusão Sólida",      desc:"Acima de 99% em todos os meses (excluindo Set). Operação consistente e sem gargalos críticos."},
+  {icon:"🗓",cor:PURPLE,   titulo:"Janelas de Alta Demanda",       desc:"Dias 1–5 e 9–13 são recorrentemente os mais densos. Planejamento nessas janelas pode melhorar o SLA."},
+  {icon:"📉",cor:RED,      titulo:"Queda em Fevereiro",            desc:"-19,4% vs. Janeiro. Combinação de mês mais curto + sazonalidade. Sem indício de tendência negativa estrutural."},
+  {icon:"⏱",cor:ORANGE,   titulo:"Tempo Crescente (sem outliers)", desc:"O tempo típico cresceu de ~40 min (Out) para ~2h (Jan) — atendimentos progressivamente mais complexos."},
+  {icon:"🔄",cor:"#80cbc4",titulo:"Queda nos Desconsiderados",     desc:"De 34 em Set (implantação) para 6–12 nos meses seguintes. Melhora real na qualidade dos atendimentos."},
+];
+
+const igEl = document.getElementById("insightsGrid");
+insights.forEach(ins => {
+  igEl.innerHTML += `
+    <div class="insight" style="border-left:3px solid ${ins.cor}">
+      <span class="insight-icon">${ins.icon}</span>
+      <div>
+        <div class="insight-title" style="color:${ins.cor}">${ins.titulo}</div>
+        <div class="insight-desc">${ins.desc}</div>
+      </div>
+    </div>`;
+});
+</script>
+</body>
+</html>
