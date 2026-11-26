@@ -8,7 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>KomunicApp</AssemblyName>
     <RootNamespace>KomunicApp</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
 
     <!-- Ícone embutido no executável -->
     <ApplicationIcon>komunic-icon.ico</ApplicationIcon>

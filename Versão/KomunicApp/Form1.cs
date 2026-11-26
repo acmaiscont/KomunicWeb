@@ -16,7 +16,6 @@ namespace MessengerApp
     {
         
         private WebView2 webView;
-        private System.Windows.Forms.Timer? loginReminderTimer;
         private bool isLoggedIn = false;
 
         private readonly string baseDir =
@@ -143,9 +142,6 @@ namespace MessengerApp
             Controls.Add(webView);
             webView.BringToFront();
 
-            loginReminderTimer = new System.Windows.Forms.Timer { Interval = 10 * 60 * 1000 };
-            loginReminderTimer.Tick += LoginReminderTimer_Tick;
-
             Load += async (s, e) =>
             {
                 _ = CheckForUpdates();
@@ -184,7 +180,6 @@ namespace MessengerApp
                     webView.CoreWebView2.Navigate(startUrl);
                 }
 
-                loginReminderTimer.Start();
             };
         }
 
@@ -292,21 +287,6 @@ namespace MessengerApp
                     "{\"ignoreCache\":true}"
                 );
             }
-
-        private void LoginReminderTimer_Tick(object? sender, EventArgs e)
-        {
-            if (isLoggedIn) return;
-
-            if (webView.CoreWebView2 != null && !string.IsNullOrWhiteSpace(loginUrl))
-                webView.CoreWebView2.Navigate(loginUrl);
-
-            TopMost = true;
-            WindowState = FormWindowState.Maximized;
-            Show();
-            BringToFront();
-            Activate();
-            TopMost = false;
-        }
 
         private void WebView_NavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e)
         {

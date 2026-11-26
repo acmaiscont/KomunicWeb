@@ -1,6 +1,6 @@
 using System;
 using System.Windows.Forms;
-namespace KomunicApp;
+namespace MessengerApp;
 
 static class Program
 {
