@@ -1,10 +1,10 @@
 [Setup]
 AppName=KomunicApp
-AppVersion=1.0.1
+AppVersion=1.0.2
 DefaultDirName={autopf}\KomunicApp
 DefaultGroupName=KomunicApp
 OutputDir=Output
-OutputBaseFilename=KomunicAppSetup-1.0.1
+OutputBaseFilename=KomunicAppSetup-1.0.2
 SetupIconFile=komunic-icon.ico
 DisableDirPage=no
 PrivilegesRequired=admin

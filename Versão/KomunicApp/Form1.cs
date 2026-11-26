@@ -204,56 +204,50 @@ namespace MessengerApp
 
                 if (latestVersion != null && latestVersion != currentVersion)
                 {
-                    var result = MessageBox.Show(
-                        $"Uma nova versão ({latestVersion}) está disponível.\nDeseja baixar e instalar agora?", 
-                        "Atualização Disponível", 
-                        MessageBoxButtons.YesNo, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-
-                    if (result == DialogResult.Yes)
+                    Log($"Atualização automática encontrada: {currentVersion} -> {latestVersion}.");
+                    var assets = root.GetProperty("assets");
+                    string? downloadUrl = null;
+                    string? expectedDigest = null;
+                    string? assetName = null;
+                    foreach (var asset in assets.EnumerateArray())
                     {
-                        var assets = root.GetProperty("assets");
-                        string? downloadUrl = null;
-                        string? expectedDigest = null;
-                        string? assetName = null;
-                        foreach (var asset in assets.EnumerateArray())
+                        var name = asset.GetProperty("name").GetString();
+                        if (name != null && name.StartsWith("KomunicAppSetup-", StringComparison.OrdinalIgnoreCase) && name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                         {
-                            var name = asset.GetProperty("name").GetString();
-                            if (name != null && name.StartsWith("KomunicAppSetup-", StringComparison.OrdinalIgnoreCase) && name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
-                            {
-                                assetName = name;
-                                downloadUrl = asset.GetProperty("browser_download_url").GetString();
-                                expectedDigest = asset.TryGetProperty("digest", out var digestElement)
-                                    ? digestElement.GetString()
-                                    : null;
-                                break;
-                            }
+                            assetName = name;
+                            downloadUrl = asset.GetProperty("browser_download_url").GetString();
+                            expectedDigest = asset.TryGetProperty("digest", out var digestElement)
+                                ? digestElement.GetString()
+                                : null;
+                            break;
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(downloadUrl) && !string.IsNullOrEmpty(expectedDigest) && expectedDigest.StartsWith("sha256:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        string tempFile = Path.Combine(Path.GetTempPath(), $"KomunicAppSetup_Update_{Guid.NewGuid():N}.exe");
+                        var exeBytes = await client.GetByteArrayAsync(downloadUrl);
+                        File.WriteAllBytes(tempFile, exeBytes);
+
+                        using var sha256 = SHA256.Create();
+                        var actualDigest = Convert.ToHexString(sha256.ComputeHash(exeBytes));
+                        var expectedHash = expectedDigest.Substring("sha256:".Length).Trim().ToUpperInvariant();
+                        if (!string.Equals(actualDigest, expectedHash, StringComparison.OrdinalIgnoreCase))
+                        {
+                            Log($"Atualização rejeitada: digest inválido para {assetName}.");
+                            try { File.Delete(tempFile); } catch { }
+                            return;
                         }
 
-                        if (!string.IsNullOrEmpty(downloadUrl) && !string.IsNullOrEmpty(expectedDigest) && expectedDigest.StartsWith("sha256:", StringComparison.OrdinalIgnoreCase))
+                        Log($"Instalando automaticamente {assetName}.");
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                         {
-                            string tempFile = Path.Combine(Path.GetTempPath(), $"KomunicAppSetup_Update_{Guid.NewGuid():N}.exe");
-                            var exeBytes = await client.GetByteArrayAsync(downloadUrl);
-                            File.WriteAllBytes(tempFile, exeBytes);
+                            FileName = tempFile,
+                            Arguments = "/VERYSILENT /NORESTART",
+                            UseShellExecute = true
+                        });
 
-                            using var sha256 = SHA256.Create();
-                            var actualDigest = Convert.ToHexString(sha256.ComputeHash(exeBytes));
-                            var expectedHash = expectedDigest.Substring("sha256:".Length).Trim().ToUpperInvariant();
-                            if (!string.Equals(actualDigest, expectedHash, StringComparison.OrdinalIgnoreCase))
-                            {
-                                Log($"Atualização rejeitada: digest inválido para {assetName}.");
-                                try { File.Delete(tempFile); } catch { }
-                                return;
-                            }
-
-                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                            {
-                                FileName = tempFile,
-                                Arguments = "/SILENT",
-                                UseShellExecute = true
-                            });
-
-                            Application.Exit();
-                        }
+                        Application.Exit();
                     }
                 }
             }
