@@ -1,66 +1,70 @@
 # KomunicApp
 
-Aplicativo Windows baseado em WebView2 para abrir o Komunic como aplicativo, preservar a sessão e registrar atividade para suporte e indicadores.
+Aplicativo Windows baseado em Microsoft Edge WebView2 para abrir o Komunic como uma janela dedicada, preservar a sessão e facilitar o suporte.
 
-## O que o aplicativo faz
+## Funcionamento atual
 
-- Abre diretamente o chat do Komunic em `https://app.komunic.net/newchat`.
-- Mantém cookies e sessão localmente para evitar novos logins desnecessários.
-- Permite salvar senhas no perfil protegido do WebView2; o autopreenchimento geral permanece desativado.
-- Permite recarregar a página sem cache.
-- Reconhece a tela de login e redireciona o usuário quando a sessão expira.
-- Permite autorizar notificações do site.
-- Exibe um diagnóstico técnico pelo botão `ⓘ` da barra superior.
+- Abre diretamente o chat em `https://app.komunic.net/newchat`.
+- Mantém cookies, sessão e dados do perfil no computador do usuário.
+- Permite salvar senhas no perfil protegido do WebView2; o preenchimento automático geral permanece desativado.
+- Permite notificações do site, recarregamento sem cache e acesso à tela de login quando necessário.
+- Não executa mais a validação periódica de login a cada 10 minutos.
 - Não depende de API própria, banco de dados ou serviço de monitoramento.
 
-## Requisito WebView2
+## WebView2
 
-O app depende do Microsoft Edge WebView2 Runtime. O instalador verifica as instalações por usuário e por máquina. Se o runtime não estiver presente, o instalador executa o Evergreen Bootstrapper oficial da Microsoft com `/silent /install` antes de concluir a instalação do Komunic.
+O aplicativo depende do Microsoft Edge WebView2 Runtime. O instalador verifica o runtime por usuário e por máquina. Se estiver ausente, executa o bootstrapper oficial da Microsoft com `/silent /install`.
 
-O bootstrapper é online: o computador precisa conseguir acessar os servidores da Microsoft durante a instalação. O WebView2 Runtime é compartilhado por outros aplicativos WebView2 e recebe atualizações automáticas da Microsoft.
+Bootstrapper oficial: `https://go.microsoft.com/fwlink/?linkid=2124703`
 
-Se a instalação falhar, confirme acesso à internet, permissões de administrador e políticas corporativas que possam bloquear o Microsoft Edge Update.
+O bootstrapper pode precisar de internet para baixar os componentes. O WebView2 Runtime é compartilhado por outros aplicativos WebView2 e atualizado pela Microsoft.
 
-## Configuração inicial
+## Configuração
 
-Edite `Versão/KomunicApp/config.json` antes de compilar:
+Arquivo: `Versão/KomunicApp/config.json`
 
-- `LoginUrl`: tela de login do Komunic (`https://app.komunic.net/login`).
-- `StartUrl`: endereço normal do Komunic (`https://app.komunic.net/`); o próprio site conduz o usuário ao chat ou ao login.
-- `AuthenticatedUrlPrefixes`: prefixos de URL que representam uma sessão autenticada.
-- `ApiEndpoint`: endpoint de registro de atividade.
-- `GitHubRepo`: repositório de releases; vazio desativa atualização automática.
+- `LoginUrl`: `https://app.komunic.net/login`.
+- `StartUrl`: `https://app.komunic.net/newchat`.
+- `AuthenticatedUrlPrefixes`: URLs que representam uma sessão autenticada.
+- `GitHubRepo`: `acmaiscont/KomunicWeb`.
+- `CurrentVersion`: versão embutida no aplicativo, atualmente `v1.0.2`.
 
-O repositório de releases configurado é `acmaiscont/KomunicWeb`. O instalador publicado em cada release deve ser anexado como um arquivo `.exe`, e a tag do release deve ser diferente da versão instalada, por exemplo `v1.0.1`.
+## Atualização automática
 
-## Instalação e atualização
+Ao iniciar, o aplicativo consulta `https://api.github.com/repos/acmaiscont/KomunicWeb/releases/latest`.
 
-1. Execute `KomunicAppSetup-1.0.0.exe` como administrador.
-2. O instalador verifica e instala o WebView2 Runtime, se necessário.
-3. O app é instalado em `C:\Program Files\KomunicApp`.
-4. São criados atalhos no Menu Iniciar, na área de trabalho e na inicialização do Windows.
-5. Para atualizar, execute o novo instalador sobre a versão existente. A sessão local do usuário é preservada.
+Quando a tag da Release é diferente da versão instalada, o aplicativo localiza o asset `KomunicAppSetup-*.exe`, baixa pelo campo `browser_download_url`, valida o campo `digest` no formato `sha256:HASH`, compara o SHA-256 e executa o instalador validado com `/VERYSILENT /NORESTART`.
+
+Releases: `https://github.com/acmaiscont/KomunicWeb/releases`
+
+Release atual: [v1.0.2](https://github.com/acmaiscont/KomunicWeb/releases/tag/v1.0.2)
+
+O instalador precisa ser publicado como asset de uma GitHub Release. Arquivos apenas no código-fonte não são considerados pelo atualizador.
+
+## Instalação
+
+O instalador atual é `KomunicAppSetup-1.0.2.exe`. Ele instala em `C:\Program Files\KomunicApp`, cria atalhos no Menu Iniciar, na área de trabalho e na inicialização do Windows, e preserva a sessão durante atualizações.
+
+Para instalação silenciosa: `/VERYSILENT /NORESTART`
 
 ## Suporte e diagnóstico
 
-O botão `ⓘ` copia para a área de transferência as informações de aplicativo, versão, URL atual, URL de login, estado da sessão, API e caminho do log. O log local fica em `%LOCALAPPDATA%\KomunicApp\app_log.txt`.
+O botão de diagnóstico copia informações técnicas para a área de transferência, incluindo versão, URL atual, estado da sessão e caminho do log.
 
-Para limpar uma sessão corrompida, encerre o app e remova somente a pasta `%LOCALAPPDATA%\KomunicApp\WebView2`; isso fará o Komunic solicitar login novamente.
+Log local: `%LOCALAPPDATA%\KomunicApp\app_log.txt`
 
-## Operação piloto
+Para limpar uma sessão corrompida, encerre o aplicativo e remova somente `%LOCALAPPDATA%\KomunicApp\WebView2`. Isso fará o site solicitar o login novamente.
 
-1. Preencher a URL real do Komunic.
-2. Testar login, notificações, recarregamento e persistência da sessão.
-3. Validar o botão `ⓘ` para diagnóstico e suporte.
-4. Confirmar o registro de atividade e o reenvio após indisponibilidade da API.
-5. Distribuir primeiro para usuários-chave e manter `Arquivo/MessengerApp-Onvio-2026-11-18` como plano de retorno.
+## Build e distribuição
 
-## API
+Código local: `D:\OneDrive - JCM CONTABILIDADE\Suporte - Desenvolvimento\KomunicApp`
 
-A API exige `DATABASE_URL` ou `ConnectionStrings__DefaultConnection`. Para relatórios, configure `SMTP_SERVER`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM` e `EMAIL_TO` como variáveis de ambiente/segredos. Nenhuma credencial SMTP deve ser gravada no código.
+Repositório: `https://github.com/acmaiscont/KomunicWeb`
 
-## Build
+O script `Versão/KomunicApp/build.ps1` publica o executável self-contained e gera o instalador com Inno Setup. O bootstrapper do WebView2 é empacotado no instalador.
 
-O build depende dos runtimes de referência do target framework e dos pacotes NuGet. No ambiente de desenvolvimento, instale os SDKs compatíveis com os targets do projeto antes de executar `dotnet restore` e `dotnet publish`.
+Artefatos de build (`bin`, `obj`, `publish` e instaladores antigos) não devem ser versionados no Git. O instalador oficial deve ser distribuído pela GitHub Release.
 
-O script `Versão/KomunicApp/build.ps1` publica o executável self-contained e gera o instalador pelo Inno Setup. O arquivo `MicrosoftEdgeWebview2Setup.exe` é o bootstrapper oficial empacotado no instalador.
+## Retorno operacional
+
+O projeto anterior permanece arquivado em `D:\OneDrive - JCM CONTABILIDADE\Suporte - Desenvolvimento\Arquivo\MessengerApp-Onvio-2026-11-18`.
